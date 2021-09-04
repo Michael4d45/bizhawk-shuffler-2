@@ -630,11 +630,7 @@ while true do
 		if input_rise[config.hk_complete] and frames_since_restart > math.min(3, config.min_swap/2) * 60 then mark_complete() end
 
 		adjust_time(input_rise[config.hk_backward], input_rise[config.hk_forward])
-		if input_rise["Pause"] then
-			local time_diff = (gettime() - last_time)
-			config.initial_time = config.initial_time + time_diff
-			console.log(seconds_to_time(time_diff))
-		end
+		if input_rise["Pause"] then config.initial_time = config.initial_time + time_diff end
 		last_time = time
 
 		-- time to swap!
