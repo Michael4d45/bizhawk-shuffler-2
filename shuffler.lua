@@ -334,6 +334,15 @@ function update_next_swap_time()
 	end
 end
 
+function adjust_time(backward, forward)
+	local step = 0.5
+	if backward then
+		config.initial_time = config.initial_time + step
+	elseif forward then
+		config.initial_time = config.initial_time - step
+	end
+end
+
 function starts_with(a, b)
 	return a:sub(1, #b) == b
 end
@@ -579,7 +588,6 @@ while true do
 
 		local time = gettime()
 		local time_difference = time - last_time
-		last_time = time
 
 		local total_time_since_start = time - config.initial_time
 		local total_time = config.total_time + time_difference
@@ -620,6 +628,14 @@ while true do
 		-- the time buffer should hopefully prevent somebody from attempting to
 		-- press the hotkey and the game swapping, marking the wrong game complete
 		if input_rise[config.hk_complete] and frames_since_restart > math.min(3, config.min_swap/2) * 60 then mark_complete() end
+
+		adjust_time(input_rise[config.hk_backward], input_rise[config.hk_forward])
+		if input_rise["Pause"] then
+			local time_diff = (gettime() - last_time)
+			config.initial_time = config.initial_time + time_diff
+			console.log(seconds_to_time(time_diff))
+		end
+		last_time = time
 
 		-- time to swap!
 	    if total_time_since_start >= config.total_time_limit then swap_game() end

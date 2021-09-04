@@ -229,6 +229,7 @@ function module.initial_setup(callback)
 	local setup_window, resume, start_btn
 	local seed_text, min_text, max_text
 	local mode_combo, hk_complete, plugin_label
+	local hk_forward, hk_backward
 	local plugin_window = -1
 
 	local plugins = {}
@@ -257,6 +258,16 @@ function module.initial_setup(callback)
 		'Backslash (above Enter)',
 		'RightCtrl',
 	}
+	
+	local TIMER_FORWARD_HOTKEY_OPTIONS = {
+		'Ctrl+Shift+RightBracket',
+		'Ctrl+Shift+Right',
+	}
+	
+	local TIMER_BACKWARD_HOTKEY_OPTIONS = {
+		'Ctrl+Shift+LeftBracket',
+		'Ctrl+Shift+Left',
+	}
 
 	function start_handler()
 		if not forms.ischecked(resume) then save_new_settings() end
@@ -280,6 +291,8 @@ function module.initial_setup(callback)
 
 		config.shuffle_index = SWAP_MODES[forms.gettext(mode_combo)]
 		config.hk_complete = (forms.gettext(hk_complete) or 'Ctrl+Shift+End'):match("[^%s]+")
+		config.hk_forward = (forms.gettext(hk_forward) or 'Ctrl+Shift+RightBracket'):match("[^%s]+")
+		config.hk_backward = (forms.gettext(hk_backward) or 'Ctrl+Shift+LeftBracket'):match("[^%s]+")
 		config.completed_games = {}
 
 		config.plugins = {}
@@ -313,7 +326,7 @@ function module.initial_setup(callback)
 	end
 
 	local y = 10
-	setup_window = forms.newform(340, 230, "Bizhawk Shuffler v2 Setup", main_cleanup)
+	setup_window = forms.newform(0, 0, "Bizhawk Shuffler v2 Setup", main_cleanup)
 
 	seed_text = forms.textbox(setup_window, 0, 100, 20, "UNSIGNED", 10, y)
 	forms.label(setup_window, "Seed", 115, y+3, 40, 20)
@@ -346,6 +359,16 @@ function module.initial_setup(callback)
 	forms.settext(hk_complete, config.hk_complete or 'Ctrl+Shift+End')
 	y = y + 30
 
+	hk_forward = forms.dropdown(setup_window, TIMER_FORWARD_HOTKEY_OPTIONS, 10, y, 150, 20)
+	forms.label(setup_window, "Hotkey: Move timer forward", 165, y+3, 150, 20)
+	forms.settext(hk_forward, config.hk_forward or 'Ctrl+Shift+RightBracket')
+	y = y + 30
+
+	hk_backward = forms.dropdown(setup_window, TIMER_BACKWARD_HOTKEY_OPTIONS, 10, y, 150, 20)
+	forms.label(setup_window, "Hotkey: Move timer backward", 165, y+3, 150, 20)
+	forms.settext(hk_backward, config.hk_backward or 'Ctrl+Shift+LeftBracket')
+	y = y + 30
+
 	forms.button(setup_window, "Setup Plugins", function()
 		forms.destroy(plugin_window)
 		plugin_window = module.make_plugin_window(plugins, plugin_label)
@@ -365,6 +388,8 @@ function module.initial_setup(callback)
 			forms.settext(start_btn, "Start New Session")
 		end
 	end)
+
+	forms.setsize(setup_window, 340, y + 35)
 end
 
 return module
